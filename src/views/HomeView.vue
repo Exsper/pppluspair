@@ -2,19 +2,27 @@
   <div class="common-layout">
     <el-container>
       <el-main>
-        <el-row justify="center">
-          <el-col :span="8"><LeftPlayerTable ref="leftplayer" /></el-col>
-          <el-col :span="8"><RightPlayerTable ref="rightplayer" /></el-col>
+        <el-row justify="center" :gutter="24">
+          <el-col :span="11" style="min-width: 340px; padding-bottom: 12px"
+            ><LeftPlayerTable ref="leftplayer"
+          /></el-col>
+          <el-col :span="11" style="min-width: 340px; padding-bottom: 12px"
+            ><RightPlayerTable ref="rightplayer"
+          /></el-col>
         </el-row>
         <br />
         <el-row justify="center">
           <el-button type="primary" @click="draw">比一比</el-button>
         </el-row>
+        <br />
         <el-row justify="center">
-          <div id="graph"></div>
+          <el-col><span :hidden="msg === ''">两人的相似程度为</span></el-col>
+          <el-col
+            ><span class="pairMsg">{{ msg }}</span></el-col
+          >
         </el-row>
         <el-row justify="center">
-          <span>{{ msg }}</span>
+          <div id="graph"></div>
         </el-row>
       </el-main>
     </el-container>
@@ -64,9 +72,14 @@ export default {
         [leftppp.getDrawData(), rightppp.getDrawData()],
         layout
       );
-      this.msg =
-        "两人的相似程度为： " + leftppp.compareTo(rightppp)?.toFixed(2) + "%";
+      this.msg = leftppp.compareTo(rightppp)?.toFixed(2) + "%";
     },
   },
 };
 </script>
+
+<style scoped>
+.pairMsg {
+  font: 24px sans-serif;
+}
+</style>

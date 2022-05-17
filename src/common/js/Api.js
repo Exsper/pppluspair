@@ -7,7 +7,7 @@ class PPPlus {
     // this.aim = user_data.AimTotal;
     this.aimFlow = user_data.FlowAimTotal;
     this.aimJump = user_data.JumpAimTotal;
-    this.ppp = user_data.PerformanceTotal;
+    // this.ppp = user_data.PerformanceTotal;
     this.precision = user_data.PrecisionTotal;
     this.speed = user_data.SpeedTotal;
     this.stamina = user_data.StaminaTotal;
@@ -26,6 +26,20 @@ class PPPlus {
       this.speed,
       this.precision,
     ];
+  }
+
+  toStoreObj() {
+    return {
+      [this.username]: {
+        accuracy: this.accuracy,
+        aimFlow: this.aimFlow,
+        aimJump: this.aimJump,
+        precision: this.precision,
+        speed: this.speed,
+        stamina: this.stamina,
+        date: new Date().toLocaleString(),
+      },
+    };
   }
 
   /**
@@ -78,8 +92,9 @@ class PPPlus {
 
   /**
    * 比较两个六维数据的相似程度
+   * 为了更加明显地区分，将 (1 - θ / 2π) * 100 的结果/10再^2
    * @param {PPPlus} ppp 比较目标
-   * @returns {number} (1 - θ / 2π) * 100
+   * @returns {number} 相似程度，0-100
    */
   compareTo(ppp) {
     let _norvalues = ppp.getNorValues();
@@ -87,7 +102,7 @@ class PPPlus {
       this.getNorValues().reduce((sum, value, index) => {
         return sum + value * _norvalues[index];
       }, 0) ** 0.5;
-    return (1 - (Math.acos(dp) * 2) / Math.PI) * 100;
+    return ((1 - (Math.acos(dp) * 2) / Math.PI) * 10) ** 2;
   }
 }
 
