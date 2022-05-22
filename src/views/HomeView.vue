@@ -12,7 +12,19 @@
         </el-row>
         <br />
         <el-row justify="center">
-          <el-button type="primary" @click="draw">比一比</el-button>
+          <el-col :span="2"
+            ><el-button type="primary" @click="newDraw"
+              >比一比</el-button
+            ></el-col
+          >
+          <el-col :span="0"></el-col
+          ><el-button type="primary" @click="rotateLeft"
+            >左边顺时针旋转</el-button
+          >
+          <el-col :span="0"></el-col
+          ><el-button type="primary" @click="rotateRight"
+            >右边顺时针旋转</el-button
+          >
         </el-row>
         <br />
         <el-row justify="center">
@@ -53,9 +65,26 @@ export default {
   data() {
     return {
       msg: "",
+      rotateLeftCount: 0,
+      rotateRightCount: 0,
     };
   },
   methods: {
+    rotateLeft() {
+      this.rotateLeftCount += 1;
+      this.rotateLeftCount %= 6;
+      this.draw();
+    },
+    rotateRight() {
+      this.rotateRightCount += 1;
+      this.rotateRightCount %= 6;
+      this.draw();
+    },
+    newDraw() {
+      this.rotateRightCount = 0;
+      this.rotateLeftCount = 0;
+      this.draw();
+    },
     draw() {
       let leftppp = this.$refs.leftplayer.toPPP();
       let rightppp = this.$refs.rightplayer.toPPP();
@@ -69,10 +98,16 @@ export default {
       };
       window.Plotly.newPlot(
         "graph",
-        [leftppp.getDrawData(), rightppp.getDrawData()],
+        [
+          leftppp.getDrawData(this.rotateLeftCount),
+          rightppp.getDrawData(this.rotateRightCount),
+        ],
         layout
       );
-      this.msg = leftppp.compareTo(rightppp)?.toFixed(2) + "%";
+      this.msg =
+        leftppp
+          .compareTo(rightppp, this.rotateLeftCount, this.rotateRightCount)
+          ?.toFixed(2) + "%";
     },
   },
 };

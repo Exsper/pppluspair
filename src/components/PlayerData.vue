@@ -75,6 +75,14 @@ export default {
       try {
         this.msg = " ";
         this.buttonDisabled = true;
+        [
+          this.jump,
+          this.flow,
+          this.accuracy,
+          this.stamina,
+          this.speed,
+          this.precision,
+        ] = [0, 0, 0, 0, 0, 0];
         let api = new Api();
         let ppp = await api.getUser(this.username);
         this.username = ppp.username;

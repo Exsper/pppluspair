@@ -44,20 +44,40 @@ class PPPlus {
 
   /**
    * 获取标准化六维长度
+   * @param {number} rotate 顺时针旋转格数
    * @returns {Array<number>}
    */
-  getStdValues() {
+  getStdValues(rotate = 0) {
     let _jump = 1.92 * this.aimJump ** 0.953;
     let _flow = 69.7 * this.aimFlow ** 0.596;
     let _pre = 19.8 * this.precision ** 0.8;
     let _spd = 0.588 * this.speed ** 1.175;
     let _sta = 3.06 * this.stamina ** 0.993;
     let _acc = 14.1 * this.accuracy ** 0.769;
-    return [_jump, _flow, _acc, _sta, _spd, _pre];
+    switch (rotate) {
+      case 1:
+        return [_pre, _jump, _flow, _acc, _sta, _spd];
+      case 2:
+        return [_spd, _pre, _jump, _flow, _acc, _sta];
+      case 3:
+        return [_sta, _spd, _pre, _jump, _flow, _acc];
+      case 4:
+        return [_acc, _sta, _spd, _pre, _jump, _flow];
+      case 5:
+        return [_flow, _acc, _sta, _spd, _pre, _jump];
+      default:
+        return [_jump, _flow, _acc, _sta, _spd, _pre];
+    }
   }
 
-  getDrawData() {
-    let r = this.getStdValues();
+  /**
+   * 获取作图数据
+   * @param {number} rotate 顺时针旋转格数
+   * @returns {Object} draw data
+   */
+  getDrawData(rotate = 0) {
+    rotate = rotate % 6;
+    let r = this.getStdValues(rotate);
     r = [r[2], r[1], r[0], r[5], r[4], r[3], r[2]];
     r.push(r[0]);
     return {
@@ -73,16 +93,20 @@ class PPPlus {
         "Accuracy",
       ],
       fill: "toself",
-      name: this.username,
+      name:
+        rotate === 0
+          ? this.username
+          : this.username + " (顺时针旋转" + rotate + "格)",
     };
   }
 
   /**
    * 获取归一化六维长度
+   * @param {number} rotate 顺时针旋转格数
    * @returns {Array<number>}
    */
-  getNorValues() {
-    let values = this.getStdValues();
+  getNorValues(rotate) {
+    let values = this.getStdValues(rotate);
     let d =
       values.reduce((sum, value) => {
         return sum + value ** 2;
@@ -94,12 +118,14 @@ class PPPlus {
    * 比较两个六维数据的相似程度
    * 为了更加明显地区分，将 (1 - θ / 2π) * 100 的结果/10再^2
    * @param {PPPlus} ppp 比较目标
+   * @param {number} rotateLeft 左边顺时针旋转格数
+   * @param {number} rotateRight 右边顺时针旋转格数
    * @returns {number} 相似程度，0-100
    */
-  compareTo(ppp) {
-    let _norvalues = ppp.getNorValues();
+  compareTo(ppp, rotateLeft = 0, rotateRight = 0) {
+    let _norvalues = ppp.getNorValues(rotateRight);
     let dp =
-      this.getNorValues().reduce((sum, value, index) => {
+      this.getNorValues(rotateLeft).reduce((sum, value, index) => {
         return sum + value * _norvalues[index];
       }, 0) ** 0.5;
     return ((1 - (Math.acos(dp) * 2) / Math.PI) * 10) ** 2;
